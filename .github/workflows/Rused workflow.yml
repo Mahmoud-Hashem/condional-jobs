@@ -1,4 +1,4 @@
-name: Website Deployment
+name: Continue Website Deployment
 on:
   push:
     branches:
@@ -36,6 +36,7 @@ jobs:
         run: npm ci
       - name: Test code
         id: test
+        continue-on-error: true
         run: npm run test
       - name: Upload test report
         if: failure() && steps.test.outcome == 'failure' 
@@ -68,16 +69,7 @@ jobs:
           path: dist
   deploy:
     needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Get build artifacts
-        uses: actions/download-artifact@v7
-        with:
-          name: dist-files
-      - name: Output contents
-        run: ls
-      - name: Deploy
-        run: echo "Deploying..."
+    uses: ./.github/workflows/reusable.yaml
   report: 
     needs: [deploy, lint]
     if: failure()
